@@ -19,19 +19,20 @@ final class BankAccount: @unchecked Sendable {
         lock.unlock()
     }
 
-    func withdraw(amount: Int) {
+    func withdraw(amount: Int) -> Bool {
         lock.lock()
+        defer { lock.unlock() }
         if balance >= amount {
             balance -= amount
+            return true
         }
-        lock.unlock()
+        return false
     }
 
     func getBalance() -> Int {
-        lock.lock()
-        let currentBalance = balance
-        lock.unlock()
-        return currentBalance
+        lock.withLock {
+            return balance
+        }
     }
 }
 
